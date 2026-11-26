@@ -1,0 +1,24 @@
+services:
+  bot:
+    build: .
+    env_file: .env
+    environment:
+      PORT: "off"
+    volumes:
+      - auth:/app/auth
+    restart: unless-stopped
+    init: true # cleans up finished ffmpeg and yt-dlp processes
+    # Ceilings so a heavy conversion cannot take over the machine.
+    mem_limit: 1g
+    cpus: 2
+    pids_limit: 200
+    cap_drop: [ALL]
+    security_opt:
+      - "no-new-privileges:true"
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+
+volumes:
+  auth:
