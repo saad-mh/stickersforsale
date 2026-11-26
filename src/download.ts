@@ -34,7 +34,8 @@ export async function download(
   { url, start, seconds }: { url: string; start: number; seconds: number },
   dir: string, ffmpegPath: string, run: Run = ytDlp, cookies = process.env.IG_COOKIES,
 ): Promise<string> {
-  const args = (login: string[]) => ['--ignore-config', '--no-playlist', '--no-progress',
+  // YouTube needs a JavaScript runtime; this allows Node, which the bot already has, besides yt-dlp's default.
+  const args = (login: string[]) => ['--ignore-config', '--no-playlist', '--no-progress', '--js-runtimes', 'node',
     ...ffmpegPath.includes('/') ? ['--ffmpeg-location', ffmpegPath] : [], ...login,
     '--download-sections', `*${start}-${start + seconds}`, '--force-keyframes-at-cuts',
     // "res" is the shorter side, so this also suits vertical video.

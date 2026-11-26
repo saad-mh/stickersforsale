@@ -52,6 +52,29 @@ npm start
 
 **6. Restart** (Ctrl+C, then `npm start`) and send `.help` in the group.
 
+## Run with Docker instead
+
+**Untested:** these files have not been built or run yet.
+
+Needs [Docker](https://docs.docker.com/get-docker/) with Compose; nothing else from the list above. Create `.env` (step 3), then link the number:
+
+```bash
+docker compose up --build
+```
+
+Scan the QR code, fill in `GROUP_JID` and `OWNER_NUMBER`, press Ctrl+C, then run it in the background:
+
+```bash
+docker compose up -d --build
+```
+
+- The WhatsApp login is kept in a Docker volume. `docker compose down -v` deletes it.
+- The web page is off in Docker.
+- Use one copy at a time: Docker or `npm start`, not both on the same number.
+- `yt-dlp` is installed when the image is built. To update it: `docker compose build --no-cache`.
+- For `IG_COOKIES`, mount a `cookies.txt` file the container can write to, and point the setting at it. A Firefox profile path from your computer will not work inside the container.
+- Memory, CPU and log limits are in `compose.yaml`.
+
 ## Commands
 
 `.s` is short for `.sticker`. `!`, `#` and `/` work in place of the dot. Times are `72` or `1:12`. The default length is 5 s and the most is 10 s.

@@ -1,0 +1,5 @@
+# Send only what the image needs, so .env, auth/ and cookies can never end up inside it.
+*
+!package.json
+!package-lock.json
+!src
