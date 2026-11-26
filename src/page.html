@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sticker Bot</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { font: 16px/1.4 system-ui, sans-serif; max-width: 28rem; margin: 3rem auto; padding: 0 16px; }
+  label { display: block; margin-bottom: 1rem; }
+  input, button { font: inherit; padding: .5rem; box-sizing: border-box; }
+  input { display: block; width: 100%; }
+</style>
+</head>
+<body>
+<h1>Sticker Bot</h1>
+<form>
+  <label>YouTube, Instagram or .mp4 link <input name="url" type="url" required></label>
+  <label>Start <input name="start" placeholder="1:12" required></label>
+  <label>End (optional, 5 s if empty, 10 s at most) <input name="end" placeholder="1:17"></label>
+  <button>Send to group</button>
+</form>
+<p role="status"></p>
+<script>
+  const form = document.querySelector('form');
+  const button = form.querySelector('button');
+  const status = document.querySelector('[role=status]');
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    button.disabled = true;
+    status.textContent = 'Working… this can take a minute.';
+    try {
+      const response = await fetch('/send', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(Object.fromEntries(new FormData(form))),
+      });
+      const result = await response.json();
+      status.textContent = result.ok ? 'Sent to the group.' : result.error;
+    } catch {
+      status.textContent = 'The bot is not running.';
+    }
+    button.disabled = false;
+  });
+</script>
+</body>
+</html>
