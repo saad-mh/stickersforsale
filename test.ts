@@ -331,6 +331,7 @@ test('the handler obeys only the group and the owner, and survives failed replie
       replies.push(content.text);
     },
     signalRepository: { lidMapping: { getPNForLID: async () => null } },
+    user: { id: '111:5@s.whatsapp.net' },
   } as never;
   let id = 0;
   const message = (remoteJid: string, text = '.s https://youtu.be/a 1') => ({
@@ -353,6 +354,12 @@ test('the handler obeys only the group and the owner, and survives failed replie
   assert.deepEqual(targets.splice(0), []);
   await make('111', '')(sock, message('111@s.whatsapp.net'));
   assert.deepEqual(targets.splice(0), ['111@s.whatsapp.net']);
+
+  // The bot runs on the owner's own number, so the owner's commands arrive as fromMe.
+  const mine = { ...message('222@s.whatsapp.net'), key: { ...message('222@s.whatsapp.net').key, fromMe: true } };
+  await make('111', '')(sock, mine);
+  await make('333', '')(sock, { ...mine, key: { ...mine.key, id: 'other' } });
+  assert.deepEqual(targets.splice(0), ['222@s.whatsapp.net']);
 
   failReplies = true;
   await both(sock, message('g@g.us'));
