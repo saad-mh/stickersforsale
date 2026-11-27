@@ -26,7 +26,7 @@ export function createHandler({ owner, group, deliver }: { owner: string; group:
   return async function onMessage(sock: WASocket, message: WAMessage): Promise<void> {
     const { key } = message;
     const chat = key.remoteJid;
-    if (!chat || !key.id || key.fromMe || seen.has(key.id)) return;
+    if (!chat || !key.id || seen.has(key.id)) return;
     // Ignore old messages delivered after the bot was offline.
     if (Date.now() / 1000 - Number(message.messageTimestamp) > 300) return;
     const text = messageText(message);
@@ -37,7 +37,9 @@ export function createHandler({ owner, group, deliver }: { owner: string; group:
     if (chat !== group) {
       if (!owner) return;
       // WhatsApp may identify the sender by a hidden "LID" instead of the phone number.
-      const ids = chat.endsWith('@g.us') ? [key.participant, key.participantAlt] : [chat, key.remoteJidAlt];
+      // Our own messages come from the linked account, which is the owner when the bot runs on the owner's number.
+      const ids = key.fromMe ? [sock.user?.id]
+        : chat.endsWith('@g.us') ? [key.participant, key.participantAlt] : [chat, key.remoteJidAlt];
       const lid = ids.find(id => id?.endsWith('@lid'));
       if (lid) ids.push(await sock.signalRepository.lidMapping.getPNForLID(lid));
       if (!isOwner(ids, owner)) return;
